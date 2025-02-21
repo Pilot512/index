@@ -1,0 +1,235 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <!-- 3-Dot History Button (Bilkul Top Per) -->
+        <div class="history-btn" onclick="toggleHistory()">⋮</div>
+
+        <!-- Display Section -->
+        <div class="display">
+            <div class="previous-value" id="prev-value"></div>
+            <div class="current-value" id="curr-value">0</div>
+        </div>
+
+        <!-- History Panel -->
+        <div class="history-panel" id="history-panel">
+            <h3>History</h3>
+            <ul id="history-list"></ul>
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <button class="btn gray" onclick="clearDisplay()">AC</button>
+            <button class="btn gray" onclick="invertSign()">+/-</button>
+            <button class="btn gray" onclick="percentage()">%</button>
+            <button class="btn orange" onclick="operator('/')">÷</button>
+
+            <button class="btn black" onclick="appendNumber('7')">7</button>
+            <button class="btn black" onclick="appendNumber('8')">8</button>
+            <button class="btn black" onclick="appendNumber('9')">9</button>
+            <button class="btn orange" onclick="operator('*')">×</button>
+
+            <button class="btn black" onclick="appendNumber('4')">4</button>
+            <button class="btn black" onclick="appendNumber('5')">5</button>
+            <button class="btn black" onclick="appendNumber('6')">6</button>
+            <button class="btn orange" onclick="operator('-')">−</button>
+
+            <button class="btn black" onclick="appendNumber('1')">1</button>
+            <button class="btn black" onclick="appendNumber('2')">2</button>
+            <button class="btn black" onclick="appendNumber('3')">3</button>
+            <button class="btn orange" onclick="operator('+')">+</button>
+
+            <button class="btn black zero-btn" onclick="appendNumber('0')">0</button>
+            <button class="btn black" onclick="appendNumber('.')">.</button>
+            <button class="btn orange" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><style>body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: black;
+    font-family: Arial, sans-serif;
+}
+
+.calculator {
+    width: 300px;
+    background-color: black;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+}
+
+/* 3-Dot History Button (Bilkul Top Pe) */
+.history-btn {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 20px;
+    color: orange;
+    cursor: pointer;
+}
+
+/* Display Screen */
+.display {
+    text-align: right;
+    color: white;
+    padding: 10px;
+    font-size: 30px;
+}
+
+.previous-value {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.current-value {
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* History Panel */
+.history-panel {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    width: 120px;
+    color: white;
+    font-size: 14px;
+}
+
+.history-panel h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.history-panel ul {
+    list-style: none;
+    padding: 0;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 100px;
+}
+
+.btn {
+    width: 60px;
+    height: 70px;
+    border-radius: 50%;
+    border: none;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.gray {
+    background-color: #A5A5A5;
+    color: black;
+}
+
+.orange {
+    background-color: #FF9500;
+    color: white;
+}
+
+.black {
+    background-color: #333;
+    color: white;
+}
+
+/* Zero Button */
+.zero-btn {
+    grid-column: span 2;
+    width: 130px;
+    border-radius: 30px;
+}
+
+.btn:active {
+    opacity: 0.7;
+}</style><script>let currExpression = "";
+const currDisplay = document.getElementById("curr-value");
+const historyPanel = document.getElementById("history-panel");
+const historyList = document.getElementById("history-list");
+
+function appendNumber(number) {
+    currExpression += number;
+    updateDisplay();
+}
+
+function updateDisplay() {
+    currDisplay.textContent = currExpression || "0";
+}
+
+function clearDisplay() {
+    currExpression = "";
+    updateDisplay();
+}
+
+function operator(op) {
+    if (currExpression === "") return;
+    const lastChar = currExpression[currExpression.length - 1];
+    
+    if (["+", "-", "*", "/"].includes(lastChar)) {
+        currExpression = currExpression.slice(0, -1) + op;
+    } else {
+        currExpression += op;
+    }
+
+    updateDisplay();
+}
+
+function calculateResult() {
+    try {
+        let result = eval(currExpression).toString();
+        saveToHistory(currExpression + " = " + result);
+        currExpression = result;
+        updateDisplay();
+    } catch (error) {
+        currExpression = "Error";
+        updateDisplay();
+    }
+}
+
+function invertSign() {
+    if (currExpression === "") return;
+    currExpression = `(${currExpression} * -1)`;
+    updateDisplay();
+}
+
+function percentage() {
+    if (currExpression === "") return;
+    currExpression = `(${currExpression} / 100)`;
+    updateDisplay();
+}
+
+/* History Toggle */
+function toggleHistory() {
+    historyPanel.style.display = historyPanel.style.display === "block" ? "none" : "block";
+}
+
+/* Save Calculation to History */
+function saveToHistory(entry) {
+    let listItem = document.createElement("li");
+    listItem.textContent = entry;
+    historyList.appendChild(listItem);
+}</script>
